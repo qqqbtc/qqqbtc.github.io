@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#123d78">
+<title>财富规划分配</title>
+<style>
+:root{
+ --bg:#f4f7fb;--card:#fff;--text:#182233;--muted:#6b7788;--line:#dbe3ee;
+ --blue:#1769d2;--blue2:#0e55b6;--green:#16894a;--orange:#b96f00;--red:#c73737;
+ --shadow:0 4px 18px rgba(24,34,51,.06);--radius:16px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit}
+button{min-height:44px;border:0;border-radius:10px;padding:10px 15px;font-weight:750;cursor:pointer;touch-action:manipulation}
+button:active{transform:scale(.98)}
+.wrap{width:min(1400px,100%);margin:auto;padding:0 22px}
+header{background:#123d78;color:#fff;padding:20px 0;box-shadow:0 3px 14px rgba(0,0,0,.12)}
+header h1{margin:0 0 4px;font-size:25px;letter-spacing:-.3px}
+header .sub{font-size:13px;opacity:.9}
+.mobile-nav{display:none}
+main{padding:20px 0 60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+h2{font-size:18px;line-height:1.3;margin:0 0 14px}
+h3{font-size:15px;margin:0 0 9px}
+.muted{color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.field label{display:block;font-size:12px;font-weight:800;margin:0 0 6px}
+.field input{width:100%;height:44px;padding:9px 11px;border:1px solid #cbd5e2;border-radius:10px;background:#fff;color:var(--text);outline:none}
+.field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(23,105,210,.12)}
+.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+button.primary{background:var(--blue);color:#fff}
+button.primary:hover{background:var(--blue2)}
+button.secondary{background:#eaf2ff;color:var(--blue)}
+button.danger{background:#fff0f0;color:var(--red);border:1px solid #ffd0d0}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-top:15px}
+.kpi{background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:13px;min-width:0}
+.kpi:first-child{background:#eef5ff;border-color:#cfe0fa}
+.kpi b{display:block;font-size:22px;line-height:1.15;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.layout>div{min-width:0}
+canvas{display:block;width:100%;max-width:620px;height:320px;margin:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{background:#f6f8fb;font-size:12px;font-weight:800;white-space:nowrap}
+.note{background:#f6f9fd;border:1px solid #e3ebf6;padding:11px 12px;border-radius:10px;font-size:12px;line-height:1.65;margin-top:11px}
+.action{padding:13px;border-left:4px solid var(--blue);background:#f4f8ff;border-radius:10px;margin:10px 0}
+.warn{border-left-color:var(--orange);background:#fff9ee}
+.dangerBox{border-left-color:var(--red);background:#fff5f5}
+.successBox{border-left-color:var(--green);background:#f0faf4}
+.badge{display:inline-flex;align-items:center;justify-content:center;padding:4px 8px;border-radius:99px;font-size:11px;font-weight:800;white-space:nowrap}
+.hit{background:#fff0cf;color:#9a6200}.wait{background:#eaf3ff;color:var(--blue)}
+#msg{font-size:12px;color:var(--green);font-weight:700}
+input[type=file]{display:none}
+.scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scrollx table{min-width:620px}
+.command{border:1px solid #cfe0fa;background:#f5f9ff;border-radius:13px;padding:15px;margin-top:12px}
+.command strong{font-size:18px}
+.command .amount{font-size:25px;font-weight:900;margin:4px 0 8px}
+.smallgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}
+.stat span{display:block;color:var(--muted);font-size:11px}.stat b{font-size:17px}
+hr{border:0;border-top:1px solid var(--line);margin:15px 0}
+@media(max-width:1100px){
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:760px){
+ .wrap{padding:0 10px}
+ header{padding:16px 0}
+ header h1{font-size:21px}
+ header .sub{font-size:12px}
+ .mobile-nav{display:block;position:sticky;top:0;z-index:30;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.05);backdrop-filter:blur(10px)}
+ .mobile-nav .wrap{display:flex;gap:5px;padding:6px 9px;overflow-x:auto;scrollbar-width:none}
+ .mobile-nav .wrap::-webkit-scrollbar{display:none}
+ .mobile-nav a{flex:0 0 auto;text-decoration:none;color:#40516a;background:#f3f6fa;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800}
+ main{padding:12px 0 45px}
+ .card{padding:14px;border-radius:14px;margin-bottom:12px}
+ h2{font-size:17px}
+ .layout{grid-template-columns:1fr}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .kpi{padding:11px}.kpi b{font-size:19px}
+ .toolbar{gap:6px}
+ .toolbar button{flex:1 1 auto}
+ canvas{height:270px}
+ table{font-size:13px}
+ th,td{padding:8px 7px}
+ .smallgrid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:430px){
+ body{font-size:14px}
+ .wrap{padding:0 8px}
+ .card{padding:12px}
+ .field input{height:43px}
+ .kpi b{font-size:18px}
+ button{min-height:43px;padding:9px 10px;font-size:13px}
+ .toolbar button{width:100%;flex:1 0 100%}
+ canvas{height:235px}
+ .smallgrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header>
+ <div class="wrap">
+  <h1>财富规划分配</h1>
+  <div class="sub">新增积蓄 → 核心资产 → SGOV战争储备 → 回撤阶梯 → 机械加仓 → 循环</div>
+ </div>
+</header>
+
+<div class="mobile-nav">
+ <div class="wrap">
+  <a href="#overview">总览</a><a href="#cashflow">新增资金</a><a href="#drawdown">回撤</a><a href="#allocation">仓位</a><a href="#logs">日志</a>
+ </div>
+</div>
+
+<main class="wrap">
+
+<section class="card" id="overview">
+ <h2>① 财富总览 · 本地JSON档案</h2>
+ <div class="toolbar">
+  <button class="primary" onclick="loadJSON()">读取JSON</button>
+  <button class="secondary" onclick="saveJSON()">导出JSON</button>
+  <button class="secondary" onclick="saveCache()">保存浏览器缓存</button>
+  <button class="danger" onclick="resetAll()">清空缓存</button>
+  <span id="msg"></span>
+ </div>
+ <div class="note"><b>数据机制：</b>网页实时使用浏览器LocalStorage；JSON用于长期备份和跨设备迁移。浏览器不能未经授权直接覆盖电脑里的JSON文件，所以采用“缓存实时保存 + JSON手动导入/导出”。</div>
+ <div class="kpis">
+  <div class="kpi">总投资资产<b id="total">$0</b></div>
+  <div class="kpi">QQQ<b id="vqqq">$0</b></div>
+  <div class="kpi">BTC<b id="vbtc">$0</b></div>
+  <div class="kpi">SGOV<b id="vsgov">$0</b></div>
+  <div class="kpi">短线池<b id="vshort">$0</b></div>
+  <div class="kpi">SGOV占比<b id="spct">0%</b></div>
+ </div>
+</section>
+
+<section class="card" id="cashflow">
+ <h2>② 新增积蓄分配器 · “我又攒了一笔钱怎么办？”</h2>
+ <div class="grid">
+  <div class="field"><label>本次新增积蓄 USD</label><input id="newCash" type="number" min="0" step="1" value="0"></div>
+  <div class="field"><label>当前 QQQ 持仓 USD</label><input id="qqq" type="number" min="0" step="1"></div>
+  <div class="field"><label>当前 BTC 持仓 USD</label><input id="btc" type="number" min="0" step="1"></div>
+  <div class="field"><label>当前 SGOV USD</label><input id="sgov" type="number" min="0" step="1"></div>
+  <div class="field"><label>当前短线池 USD</label><input id="short" type="number" min="0" step="1"></div>
+  <div class="field"><label>其他资产 USD</label><input id="other" type="number" min="0" step="1"></div>
+ </div>
+ <div class="toolbar" style="margin-top:12px">
+  <button class="primary" onclick="updateAssets()">保存当前资产</button>
+  <button class="secondary" onclick="suggestFill()">按建议分配并填入</button>
+ </div>
+ <div class="note"><b>这部分只回答一个问题：</b>“新攒下来的钱现在怎么分？”<br>
+ 基础规则：QQQ 30% + BTC 20% + SGOV 40% + 短线池10%。但SGOV会根据当前占比动态调整：<b>&lt;10%优先补、10%—20%维持、≥20%停止新增SGOV</b>。因此不是每次都机械买40% SGOV。</div>
+ <div id="suggest"></div>
+</section>
+
+<section class="card" id="drawdown">
+ <h2>③ QQQ / BTC 回撤作战台 · “SGOV什么时候拿出来？”</h2>
+ <div class="grid">
+  <div class="field"><label>当前 QQQ USD</label><input id="qp" type="number" min="0" step="0.01"></div>
+  <div class="field"><label>QQQ历史最高价 USD</label><input id="qa" type="number" min="0" step="0.01"></div>
+  <div class="field"><label>当前 BTC USD</label><input id="bp" type="number" min="0" step="0.01"></div>
+  <div class="field"><label>BTC历史最高价 USD</label><input id="ba" type="number" min="0" step="0.01"></div>
+ </div>
+ <div class="toolbar" style="margin-top:12px">
+  <button class="primary" onclick="drawdown()">计算回撤并生成作战指令</button>
+ </div>
+ <div class="note"><b>这部分与新增积蓄分配器不同。</b>它只负责已经存在的SGOV战争储备。触发回撤后，按照阶梯从SGOV释放资金；执行买入后，再回到“当前资产”里更新实际成交结果。</div>
+ <div class="layout" style="margin-top:12px">
+  <div id="qplan"></div>
+  <div id="bplan"></div>
+ </div>
+ <div id="advice"></div>
+ <div id="command"></div>
+</section>
+
+<section class="card" id="allocation">
+ <h2>④ 当前仓位 · 资产配置</h2>
+ <div class="layout">
+  <div><canvas id="pie" height="320"></canvas></div>
+  <div>
+   <div class="scrollx">
+    <table><thead><tr><th>资产</th><th>金额</th><th>占比</th></tr></thead><tbody id="alloc"></tbody></table>
+   </div>
+   <div class="note">饼状图和表格均读取当前本地状态。执行买入/卖出后，请更新②中的实际持仓并保存。</div>
+  </div>
+ </div>
+</section>
+
+<section class="card">
+ <h2>⑤ SGOV战争储备状态</h2>
+ <div id="policy"></div>
+ <div class="note">
+  <b>记忆规则：</b><br>
+  <b>SGOV &lt;10%</b> → 下一笔新增积蓄优先补弹药；<br>
+  <b>SGOV 10%—20%</b> → 正常维持，不需要强行买SGOV；<br>
+  <b>SGOV ≥20%</b> → 停止新增SGOV，新增资金主要进入QQQ/BTC；<br>
+  <b>市场回撤</b> → 不等感觉，按照阶梯机械释放。
+ </div>
+</section>
+
+<section class="card">
+ <h2>⑥ 实际操作流程</h2>
+ <div class="action"><b>正常时期：</b>攒钱 → 输入新增积蓄 → 看②分配器 → 执行QQQ/BTC/SGOV/短线池 → 更新实际资产。</div>
+ <div class="action warn"><b>市场大跌：</b>输入QQQ/BTC当前价格和ATH → 看③回撤阶梯 → 看作战指令 → 从SGOV执行对应金额 → 更新实际资产。</div>
+ <div class="action successBox"><b>没有回撤：</b>不要为了“用掉SGOV”而强行交易。下一笔新增积蓄再次进入②，由SGOV当前占比决定是否继续补弹药。</div>
+ <div class="action dangerBox"><b>最重要纪律：</b>同一回撤档位只执行一次。执行后必须更新资产并保存JSON，避免重复买入。</div>
+</section>
+
+<section class="card" id="logs">
+ <h2>⑦ 操作日志</h2>
+ <div class="toolbar"><button class="secondary" onclick="log()">记录本次资产更新</button></div>
+ <div class="scrollx">
+  <table><thead><tr><th>日期</th><th>事件</th><th>新增资金</th></tr></thead><tbody id="logs"></tbody></table>
+ </div>
+</section>
+
+</main>
+
+<input id="file" type="file" accept=".json,application/json" hidden>
+
+<script>
+const KEY="wealthWarRoomFinalV2";
+
+let d={
+ version:2,
+ assets:{qqq:0,btc:0,sgov:0,short:0,other:0},
+ market:{qp:0,qa:0,bp:0,ba:0},
+ executed:{qqq:[],btc:[]},
+ logs:[]
+};
+
+const $=id=>document.getElementById(id);
+const N=id=>Math.max(0,+$(id).value||0);
+const M=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(+n||0);
+const P=n=>(+n||0).toFixed(1)+"%";
+
+function total(){return Object.values(d.assets).reduce((a,b)=>a+(+b||0),0)}
+
+function saveCache(show=true){
+ localStorage.setItem(KEY,JSON.stringify(d));
+ if(show){$("msg").textContent="已保存";setTimeout(()=>$("msg").textContent="",1800)}
+}
+
+function sync(){
+ ["qqq","btc","sgov","short","other"].forEach(k=>$(k).value=d.assets[k]||0);
+ ["qp","qa","bp","ba"].forEach(k=>$(k).value=d.market[k]||0);
+}
+
+function refresh(){
+ const t=total(),a=d.assets;
+ $("total").textContent=M(t);
+ $("vqqq").textContent=M(a.qqq);
+ $("vbtc").textContent=M(a.btc);
+ $("vsgov").textContent=M(a.sgov);
+ $("vshort").textContent=M(a.short);
+ $("spct").textContent=t?P(a.sgov/t*100):"0%";
+ $("alloc").innerHTML=[
+  ["QQQ",a.qqq],["BTC",a.btc],["SGOV",a.sgov],["短线池",a.short],["其他",a.other]
+ ].map(x=>`<tr><td>${x[0]}</td><td>${M(x[1])}</td><td>${t?P(x[1]/t*100):"0%"}</td></tr>`).join("");
+ pie();suggest();policy();logs();
+ if(d.market.qp&&d.market.qa&&d.market.bp&&d.market.ba) drawdown(true);
+}
+
+function pie(){
+ const c=$("pie"),ctx=c.getContext("2d"),w=Math.max(280,c.clientWidth||600),h=320;
+ const ratio=window.devicePixelRatio||1;
+ c.width=w*ratio;c.height=h*ratio;ctx.setTransform(ratio,0,0,ratio,0,0);
+ const rows=[
+  ["QQQ",d.assets.qqq,"#1769d2"],["BTC",d.assets.btc,"#f0a000"],
+  ["SGOV",d.assets.sgov,"#16894a"],["短线",d.assets.short,"#d43c3c"],["其他",d.assets.other,"#8a63d2"]
+ ];
+ const t=total(),cx=w*.35,cy=h/2,r=Math.min(108,h*.34),inner=55;
+ let s=-Math.PI/2;
+ ctx.clearRect(0,0,w,h);
+ rows.forEach(x=>{
+  const a=t?x[1]/t*Math.PI*2:0;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,s+a);ctx.closePath();ctx.fillStyle=x[2];ctx.fill();s+=a;
+ });
+ ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(cx,cy,inner,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#182233";ctx.font="bold 15px Arial";ctx.textAlign="center";ctx.fillText(M(t),cx,cy+5);
+ rows.forEach((x,i)=>{
+  ctx.fillStyle=x[2];ctx.fillRect(w*.65,30+i*30,13,13);
+  ctx.fillStyle="#182233";ctx.font="13px Arial";ctx.textAlign="left";
+  ctx.fillText(x[0]+" "+(t?P(x[1]/t*100):"0%"),w*.65+20,42+i*30);
+ });
+}
+
+function suggestion(){
+ const c=N("newCash"),t=total(),s=d.assets.sgov;
+ if(!c)return {q:0,b:0,sg:0,sh:0};
+ let q=c*.30,b=c*.20,sg=c*.40,sh=c*.10;
+ const before=t?s/t*100:0;
+ if(before>=20){q=c*.60;b=c*.30;sg=0}
+ else if(before<10){
+  const need=Math.max(0,t*.15-s);
+  const extra=Math.min(c*.20,Math.max(0,need-sg));
+  sg+=extra;q-=extra*.6;b-=extra*.4;
+ }
+ const max=Math.max(0,(t+c)*.20-s);
+ const excess=Math.max(0,sg-max);
+ if(excess){sg-=excess;q+=excess*.6;b+=excess*.4}
+ return {q,b,sg,sh};
+}
+
+function suggest(){
+ const c=N("newCash"),x=suggestion();
+ if(!c){$("suggest").innerHTML="<div class='note'>请输入本次新增积蓄。</div>";return}
+ $("suggest").innerHTML=`
+ <div class="scrollx"><table>
+ <thead><tr><th>资产</th><th>本次比例</th><th>本次金额</th></tr></thead>
+ <tbody>
+ <tr><td>QQQ</td><td>${P(x.q/c*100)}</td><td><b>${M(x.q)}</b></td></tr>
+ <tr><td>BTC</td><td>${P(x.b/c*100)}</td><td><b>${M(x.b)}</b></td></tr>
+ <tr><td>SGOV</td><td>${P(x.sg/c*100)}</td><td><b>${M(x.sg)}</b></td></tr>
+ <tr><td>短线池</td><td>${P(x.sh/c*100)}</td><td><b>${M(x.sh)}</b></td></tr>
+ </tbody></table></div>`;
+}
+
+function suggestFill(){
+ const x=suggestion();
+ $("qqq").value=(d.assets.qqq+x.q).toFixed(2);
+ $("btc").value=(d.assets.btc+x.b).toFixed(2);
+ $("sgov").value=(d.assets.sgov+x.sg).toFixed(2);
+ $("short").value=(d.assets.short+x.sh).toFixed(2);
+ $("other").value=d.assets.other;
+}
+
+function updateAssets(){
+ d.assets={qqq:N("qqq"),btc:N("btc"),sgov:N("sgov"),short:N("short"),other:N("other")};
+ saveCache();refresh();
+}
+
+function planRows(name,dd,levels){
+ let html="";
+ levels.forEach((x,i)=>{
+  const key=name==="QQQ"?"qqq":"btc";
+  const done=(d.executed[key]||[]).includes(x[0]);
+  html+=`<tr>
+   <td>${x[0]}%</td><td>${(x[1]*100).toFixed(0)}%</td>
+   <td>${M(d.assets.sgov*x[1])}</td>
+   <td>${done?'<span class="badge hit">已执行</span>':(dd<=x[0]?'<span class="badge hit">已触发</span>':'<span class="badge wait">等待</span>')}</td>
+  </tr>`;
+ });
+ return `<h3>${name} <span class="muted">当前回撤 ${P(dd)}</span></h3>
+ <div class="scrollx"><table><thead><tr><th>回撤</th><th>本档释放</th><th>按当前SGOV估算</th><th>状态</th></tr></thead><tbody>${html}</tbody></table></div>`;
+}
+
+function getTriggered(levels,key,dd){
+ return levels.filter(x=>dd<=x[0] && !(d.executed[key]||[]).includes(x[0]));
+}
+
+function drawdown(auto=false){
+ const qp=N("qp"),qa=N("qa"),bp=N("bp"),ba=N("ba");
+ if(!(qp&&qa&&bp&&ba)){if(!auto)alert("请填写QQQ/BTC当前价格和历史最高价。");return}
+ d.market={qp,qa,bp,ba};
+ const qd=(qp/qa-1)*100,bd=(bp/ba-1)*100;
+ const qlevels=[[-10,.20],[-15,.20],[-20,.25],[-30,.25],[-40,.10]];
+ const blevels=[[-20,.20],[-30,.20],[-40,.25],[-50,.25],[-60,.10]];
+ $("qplan").innerHTML=planRows("QQQ",qd,qlevels);
+ $("bplan").innerHTML=planRows("BTC",bd,blevels);
+
+ const tq=getTriggered(qlevels,"qqq",qd);
+ const tb=getTriggered(blevels,"btc",bd);
+ const sgov=d.assets.sgov;
+ const qNeed=tq.reduce((a,x)=>a+sgov*x[1],0);
+ const bNeed=tb.reduce((a,x)=>a+sgov*x[1],0);
+ const totalNeed=qNeed+bNeed;
+ const release=Math.min(sgov,totalNeed);
+
+ if(!tq.length&&!tb.length){
+  $("advice").innerHTML=`<div class="action"><b>当前没有新的回撤档位需要执行。</b>SGOV ${M(sgov)} 保留，不强行交易。下一笔新增积蓄回到②重新分配。</div>`;
+  $("command").innerHTML="";
+ }else{
+  $("advice").innerHTML=`<div class="action warn"><b>出现新的触发档位。</b>同一档位只执行一次。下面的作战指令按当前SGOV估算；如果QQQ和BTC同时触发，SGOV是共同弹药库，实际释放金额不能超过当前SGOV。</div>`;
+  let qRelease=Math.min(qNeed,release);
+  let bRelease=Math.max(0,Math.min(bNeed,release-qRelease));
+  $("command").innerHTML=`<div class="command">
+   <strong>🔴 今日作战指令</strong>
+   <div class="amount">${M(qRelease+bRelease)}</div>
+   <div class="smallgrid">
+    <div class="stat"><span>建议买入 QQQ</span><b>${M(qRelease)}</b></div>
+    <div class="stat"><span>建议买入 BTC</span><b>${M(bRelease)}</b></div>
+    <div class="stat"><span>执行后剩余SGOV</span><b>${M(sgov-qRelease-bRelease)}</b></div>
+   </div>
+   <div class="note">这是“待执行金额”，不会自动修改你的资产。实际成交后，在②输入真实持仓并保存，再点击下方按钮把本次触发档位标记为已执行。</div>
+   <div class="toolbar">
+    ${tq.length?`<button class="primary" onclick="markExecuted('qqq',${JSON.stringify(tq.map(x=>x[0]))})">标记QQQ本次档位已执行</button>`:""}
+    ${tb.length?`<button class="primary" onclick="markExecuted('btc',${JSON.stringify(tb.map(x=>x[0]))})">标记BTC本次档位已执行</button>`:""}
+   </div>
+  </div>`;
+ }
+ saveCache(false);
+}
+
+function markExecuted(key,levels){
+ if(!d.executed[key])d.executed[key]=[];
+ levels.forEach(v=>{if(!d.executed[key].includes(v))d.executed[key].push(v)});
+ saveCache();drawdown(true);refresh();
+}
+
+function policy(){
+ const t=total(),p=t?d.assets.sgov/t*100:0;
+ if(p<10){
+  $("policy").innerHTML=`<div class="action warn"><b>SGOV ${P(p)}：偏低。</b>下一笔新增积蓄优先补战争储备。</div>`;
+ }else if(p<=20){
+  $("policy").innerHTML=`<div class="action"><b>SGOV ${P(p)}：正常。</b>没有回撤时不强迫交易；新增资金正常进入QQQ/BTC等。</div>`;
+ }else{
+  $("policy").innerHTML=`<div class="action dangerBox"><b>SGOV ${P(p)}：偏高。</b>下一笔新增积蓄停止增加SGOV，主要进入QQQ/BTC。若长期没有回撤，可逐步降低SGOV占比。</div>`;
+ }
+}
+
+function log(){
+ d.logs.push({date:new Date().toISOString().slice(0,10),event:"资产更新",cash:N("newCash")});
+ saveCache();logs();
+}
+
+function logs(){
+ $("logs").innerHTML=d.logs.slice().reverse().map(x=>`<tr><td>${x.date}</td><td>${x.event||"资产更新"}</td><td>${M(x.cash)}</td></tr>`).join("")||
+ "<tr><td colspan='3'>暂无记录</td></tr>";
+}
+
+function saveJSON(){
+ const blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="wealth-war-room-"+new Date().toISOString().slice(0,10)+".json";
+ a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+function loadJSON(){
+ $("file").onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+   try{
+    const x=JSON.parse(r.result);
+    d={
+     version:2,
+     assets:{...d.assets,...(x.assets||{})},
+     market:{...d.market,...(x.market||{})},
+     executed:{qqq:[],btc:[],...(x.executed||{})},
+     logs:x.logs||[]
+    };
+    sync();saveCache();refresh();
+    $("msg").textContent="JSON读取成功";
+    setTimeout(()=>$("msg").textContent="",1800);
+   }catch(e){alert("JSON格式无效，未导入。")}
+  };
+  r.readAsText(f);
+  e.target.value="";
+ };
+ $("file").click();
+}
+
+function resetAll(){
+ if(confirm("确定清空浏览器缓存吗？已导出的JSON文件不会被删除。")){
+  localStorage.removeItem(KEY);location.reload();
+ }
+}
+
+function load(){
+ try{
+  const x=localStorage.getItem(KEY);
+  if(x)d=JSON.parse(x);
+ }catch(e){}
+ d.assets={qqq:0,btc:0,sgov:0,short:0,other:0,...(d.assets||{})};
+ d.market={qp:0,qa:0,bp:0,ba:0,...(d.market||{})};
+ d.executed={qqq:[],btc:[],...(d.executed||{})};
+ d.logs=d.logs||[];
+ sync();refresh();
+ ["newCash"].forEach(id=>$(id).addEventListener("input",suggest));
+ ["qp","qa","bp","ba"].forEach(id=>$(id).addEventListener("input",()=>{d.market[id]=N(id);}));
+ window.addEventListener("resize",()=>pie());
+}
+window.addEventListener("load",load);
+</script>
+</body>
+</html>
